@@ -2,6 +2,12 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { Job } from "./jobs"
 
 const jobs: Job[] = []
+const SOLUTION_ID_START = 10001
+
+function getNextSolutionId(): number {
+  if (jobs.length === 0) return SOLUTION_ID_START
+  return Math.max(...jobs.map((job) => job.solutionId)) + 1
+}
 
 export async function jobsHandler(
   request: HttpRequest,
@@ -9,25 +15,7 @@ export async function jobsHandler(
 ): Promise<HttpResponseInit> {
   context.log(`Processing ${request.method} ${request.url}`)
 
-  const jobId = request.params.id
-
   if (request.method === "GET") {
-    if (jobId) {
-      const job = jobs.find((item) => item.id === jobId)
-
-      if (!job) {
-        return {
-          status: 404,
-          jsonBody: { error: "Job not found" },
-        }
-      }
-
-      return {
-        status: 200,
-        jsonBody: job,
-      }
-    }
-
     return {
       status: 200,
       jsonBody: jobs,
@@ -39,10 +27,11 @@ export async function jobsHandler(
 
     const newJob: Job = {
       id: crypto.randomUUID(),
+      solutionId: getNextSolutionId(),
       customerName: body.customerName ?? "",
       serviceType: body.serviceType ?? "",
       status: "new",
-      scheduledDate: null,
+      scheduledDate: body.scheduledDate ?? null,
       address: body.address ?? "",
       notes: body.notes ?? "",
       createdAt: new Date().toISOString(),
@@ -65,6 +54,6 @@ export async function jobsHandler(
 app.http("jobs", {
   methods: ["GET", "POST"],
   authLevel: "anonymous",
-  route: "jobs/{id?}",
+  route: "jobs",
   handler: jobsHandler,
 })
