@@ -9,7 +9,25 @@ export async function jobsHandler(
 ): Promise<HttpResponseInit> {
   context.log(`Processing ${request.method} ${request.url}`)
 
+  const jobId = request.params.id
+
   if (request.method === "GET") {
+    if (jobId) {
+      const job = jobs.find((item) => item.id === jobId)
+
+      if (!job) {
+        return {
+          status: 404,
+          jsonBody: { error: "Job not found" },
+        }
+      }
+
+      return {
+        status: 200,
+        jsonBody: job,
+      }
+    }
+
     return {
       status: 200,
       jsonBody: jobs,
@@ -47,6 +65,6 @@ export async function jobsHandler(
 app.http("jobs", {
   methods: ["GET", "POST"],
   authLevel: "anonymous",
-  route: "jobs",
+  route: "jobs/{id?}",
   handler: jobsHandler,
 })
