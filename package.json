@@ -11,9 +11,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@azure/functions": "^4.11.2"
+    "@azure/functions": "^4.11.2",
+    "mssql": "^12.2.1",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "@types/mssql": "^9.1.10",
     "@types/node": "^25.4.0",
     "typescript": "^5.9.3"
   }
