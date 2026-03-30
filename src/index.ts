@@ -15,6 +15,16 @@ const globalForSql = globalThis as typeof globalThis & {
 async function getPool(): Promise<sql.ConnectionPool> {
   const connectionString = process.env.SQL_CONNECTION_STRING
 
+  console.log("SQL_CONNECTION_STRING exists:", !!connectionString)
+
+  if (connectionString) {
+    const masked = connectionString
+      .replace(/Password=[^;]*/i, "Password=***")
+      .replace(/Pwd=[^;]*/i, "Pwd=***")
+
+    console.log("SQL_CONNECTION_STRING masked:", masked)
+  }
+
   if (!connectionString) {
     throw new Error("SQL_CONNECTION_STRING is not set")
   }
